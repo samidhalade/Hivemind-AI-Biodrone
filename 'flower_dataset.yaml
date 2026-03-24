@@ -1,0 +1,37 @@
+# Step 1: Install ultralytics
+!pip install ultralytics --quiet
+
+# Step 2: Import libraries
+from ultralytics import YOLO
+import zipfile
+import os
+
+# Step 3: Download and unzip sample dataset
+!wget -O flower_dataset_sample.zip "https://cdn.openai.com/sample_files/flower_dataset_sample.zip"
+
+with zipfile.ZipFile('flower_dataset_sample.zip', 'r') as zip_ref:
+    zip_ref.extractall('flower_dataset')
+
+print("Sample flower dataset extracted")
+
+# Step 4: Create dataset YAML
+yaml_content = """
+train: flower_dataset/images/train
+val: flower_dataset/images/val
+
+nc: 1
+names: ['flower']
+"""
+
+with open('flower_dataset.yaml', 'w') as f:
+    f.write(yaml_content)
+
+print("Created dataset config file 'flower_dataset.yaml'")
+
+# Step 5: Load YOLOv8n pretrained model
+model = YOLO('yolov8n.pt')
+
+# Step 6: Train the model on sample dataset (use small epochs for demo)
+model.train(data='flower_dataset.yaml', epochs=10, imgsz=640, batch=4)
+
+print("Training complete! Check runs/detect/train/weights/best.pt")
